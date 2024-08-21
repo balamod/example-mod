@@ -1,0 +1,32 @@
+on:
+  release:
+    types:
+      - created
+
+permissions:
+  contents: write
+
+jobs:
+  get-release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.get_current_release.outputs.upload_url }}
+    steps:
+      - name: Get Current Release
+        id: get_current_release
+        uses: joutvhu/get-release@v1
+        with:
+          debug: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  release:
+    needs: get-release
+    secrets: inherit
+    strategy:
+      matrix:
+        mod:
+          - example_mod
+    uses: ./.github/workflows/package.yaml
+    with:
+      mod: ${{ matrix.mod }}
+      upload-url: ${{ needs.get-release.outputs.upload_url }}

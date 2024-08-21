@@ -1,0 +1,35 @@
+on:
+  workflow_call:
+    inputs:
+      mod:
+        type: string
+        required: true
+      upload-url:
+        type: string
+        required: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package mod ${{inputs.mod}} into tarball
+        run: |
+          mkdir ${{inputs.mod}}-tmp
+          cp -r ${{inputs.mod}}/* ${{inputs.mod}}-tmp
+          rm -rf ${{inputs.mod}}-tmp/.github
+          rm -f ${{inputs.mod}}-tmp/.gitignore
+          rm -f ${{inputs.mod}}-tmp/.gitattributes
+          rm -f ${{inputs.mod}}-tmp/.editorconfig
+          rm -f ${{inputs.mod}}-tmp/*.md
+          cd ${{inputs.mod}}-tmp
+          tar -czf ${{inputs.mod}}.tar.gz *
+      - name: Push pkg to release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ inputs.upload-url }}
+          asset_path: ${{inputs.mod}}-tmp/${{inputs.mod}}.tar.gz
+          asset_name: ${{inputs.mod}}.tar.gz
+          asset_content_type: application/octet-stream

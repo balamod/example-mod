@@ -1,0 +1,11 @@
+{
+    "id": "example_mod",
+    "name": "Example Mod",
+    "version": "1.0.0",
+    "description": [
+        "This is an example mod."
+    ],
+    "author": "BalamodTeam",
+    "load_before": [],
+    "load_after": []
+}
